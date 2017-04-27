@@ -23,6 +23,7 @@ type Dimension struct {
 
 func GetIndex(w http.ResponseWriter, r *http.Request) {
   if r.Method == "GET" {
+    w.WriteHeader(http.StatusOK)
     w.Header().Set("Content-Type", "text/html; charset=UTF-8")
     http.ServeFile(w, r, "static/index.html")
   } else {
@@ -30,20 +31,20 @@ func GetIndex(w http.ResponseWriter, r *http.Request) {
   }
 }
 
-func PostData(w http.ResponseWriter, r *http.Request) {
-  if r.Method == "POST" {
-    var data interface{}
-    err := json.Unmarshal(b, &data)
+// func PostData(w http.ResponseWriter, r *http.Request) {
+//   if r.Method == "POST" {
+//     var data interface{}
+//     err := json.Unmarshal(b, &data)
 
-  } else {
-    http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
-  }
-}
+//   } else {
+//     http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+//   }
+// }
 
 func main() {
   router := http.NewServeMux()
   router.HandleFunc("/", GetIndex)
-  router.HandleFunc("/data", PostData)
+  // router.HandleFunc("/data", PostData)
 
   err := http.ListenAndServe(":3000", router)
   if err != nil {
