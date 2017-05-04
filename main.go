@@ -32,14 +32,16 @@ type BaseData struct {
 
 type ResizeData struct {
   *BaseData
-  ResizeFrom         Dimension `json:"resizeFrom"`
-  ResizeTo           Dimension `json:"resizeTo"`
+  ResizeFromWidth    string `json:"resizeFromWidth"`
+  ResizeFromHeight   string `json:"resizeFromHeight"`
+  ResizeToWidth      string `json:"resizeToWidth"`
+  ResizeToHeight     string `json:"resizeToHeight"`
 }
 
 type CopyAndPasteData struct {
   *BaseData
   FieldId            string `json:"fieldId"`
-  Pasted             bool `json:"pasted"`
+  Pasted             bool   `json:"pasted"`
 }
 
 type FormCompletionTimeData struct {
@@ -102,7 +104,6 @@ func PostData(w http.ResponseWriter, r *http.Request) {
       return
     }
 
-
     var event Event
     if err := json.Unmarshal(body, &event); err != nil {
       http.Error(w, "Bad request", http.StatusBadRequest)
@@ -110,13 +111,18 @@ func PostData(w http.ResponseWriter, r *http.Request) {
     }
 
     switch event.Type {
-      // case "resize":
-      //   var resize ResizeData
-      //   if err := json.Unmarshal(body, &resize); err != nil {
-      //     http.Error(w, "Bad request", http.StatusBadRequest)
-      //     return
-      //   }
-      //   fmt.Println(resize)
+      case "resize":
+        var resizeData ResizeData
+        if err := json.Unmarshal(body, &resizeData); err != nil {
+          fmt.Println(err)
+          http.Error(w, "Bad request", http.StatusBadRequest)
+          return
+        }
+        sessions[sessionId].ResizeFrom.Width  = resizeData.ResizeFromWidth
+        sessions[sessionId].ResizeFrom.Height = resizeData.ResizeFromHeight
+        sessions[sessionId].ResizeTo.Width    = resizeData.ResizeToWidth
+        sessions[sessionId].ResizeTo.Height   = resizeData.ResizeToHeight
+        PrettyPrint(sessions[sessionId])
       case "copyAndPaste":
         var copyAndPasteData CopyAndPasteData
         if err := json.Unmarshal(body, &copyAndPasteData); err != nil {
@@ -127,7 +133,6 @@ func PostData(w http.ResponseWriter, r *http.Request) {
         pasted  := copyAndPasteData.Pasted
         sessions[sessionId].CopyAndPaste[fieldId] = pasted
         PrettyPrint(sessions[sessionId])
-
       case "timeTaken":
         var formCompletionTimeData FormCompletionTimeData
         if err := json.Unmarshal(body, &formCompletionTimeData); err != nil {
@@ -137,57 +142,10 @@ func PostData(w http.ResponseWriter, r *http.Request) {
         time := formCompletionTimeData.FormCompletionTime
         sessions[sessionId].FormCompletionTime = time
         PrettyPrint(sessions[sessionId])
-
       default:
         http.Error(w, "Bad request", http.StatusBadRequest)
         return
     }
-
-
-
-    // var data Data//map[string] json.RawMessage
-    // if err := json.Unmarshal(body, &data); err != nil {
-    //   http.Error(w, "Bad request", http.StatusBadRequest)
-    //   return
-    // }
-    // fmt.Println(time)
-
-    // sessionId, okSessionId := data["sessionId"]; 
-    // eventType, okEventType := data["eventType"]; 
-    // websiteUrl, okWebsiteUrl := data["websiteUrl"]; if !okSessionId || !okEventType || !okWebsiteUrl {
-    //   http.Error(w, "Bad request", http.StatusBadRequest)
-    //   return
-    // } else {
-    //   if _, ok := sessionId.(string); !ok {
-    //     http.Error(w, "Bad request", http.StatusBadRequest)
-    //     return
-    //   }
-    //   switch eventType {
-    //     case "resize":
-    //       // var resizeFrom Dimension := {data["resizeFrom"]["width"], data["resizeFrom"]["height"]}
-    //       // var resizeTo Dimension := {data["resizeTo"]["width"], data["resizeTo"]["height"]}
-
-    //       resizeFromWidth, ok := data["resizeFromWidth"].(string); 
-    //       resizeFromHeight, ok := data["resizeFromHeight"].(string); if ok {
-    //         resizeFrom := new(Dimension).SetValues(resizeFromWidth, resizeFromHeight)
-    //         fmt.Println(resizeFrom)
-    //       }
-    //       // fmt.Printf("%+v", sessions[sessionId])
-    //       // resizeTo := new(Dimension).SetValues(data["resizeToWidth"], data["resizeToHeight"])
-    //       // sessions[sessionId].resizeFrom = resizeFrom
-    //       // sessions[sessionId].resizeTo = resizeTo
-    //     case "copyAndPaste":
-    //       fmt.Printf("%s", data["pasted"])
-    //     case "timeTaken":
-    //       fmt.Println(websiteUrl)
-    //       if time, ok := data["time"].(int); ok {
-    //         sessions[sessionId].FormCompletionTime = time
-    //       }
-    //     default:
-    //       http.Error(w, "Bad request", http.StatusBadRequest)
-    //       return
-    //   }
-    // }
 
     w.Header().Set("Content-Type", "application/json; charset=UTF-8")
     w.WriteHeader(http.StatusAccepted)

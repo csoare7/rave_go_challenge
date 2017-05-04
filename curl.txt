@@ -2,3 +2,5 @@ curl -H "Content-Type: application/json" -d '{"eventType": "timeTaken", "website
 
 curl -H "Content-Type: application/json" -d '{"eventType": "copyAndPaste", "websiteUrl": "https://ravelin.com", "sessionId": "", "pasted": true, "formId": "inputCardNumber"}'  http://localhost:3000/data
 
+curl -H "Content-Type: application/json" -d '{"eventType": "resize", "websiteUrl": "https://ravelin.com", "sessionId": "", "resizeFromWidth":"100", "resizeFromHeight":"100", "resizeToWidth":"200", "resizeToHeight":"200"}'  http://localhost:3000/data
+
