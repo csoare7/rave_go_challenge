@@ -105,9 +105,17 @@ func PostData(w http.ResponseWriter, r *http.Request) {
         return
     }
 
+    var responseObj = make(map[string]string) 
+    responseObj["sessionId"] = sessionId
+    responseJson, err := json.Marshal(responseObj)
+    if err != nil {
+      http.Error(w, err.Error(), http.StatusInternalServerError)
+      return
+    }
+
     w.Header().Set("Content-Type", "application/json; charset=UTF-8")
     w.WriteHeader(http.StatusAccepted)
-
+    w.Write(responseJson)
   } else {
     http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
     return
