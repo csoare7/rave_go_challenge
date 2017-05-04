@@ -1,1 +1,4 @@
-curl -H "Content-Type: application/json" -d '"eventType": "timeTaken", "websiteUrl": "https://ravelin.com", "sessionId": "123123-123123-123123123"}'  http://localhost:3000/data
+curl -H "Content-Type: application/json" -d '{"eventType": "timeTaken", "websiteUrl": "https://ravelin.com", "sessionId": "", "time": 100}'  http://localhost:3000/data
+
+curl -H "Content-Type: application/json" -d '{"eventType": "copyAndPaste", "websiteUrl": "https://ravelin.com", "sessionId": "", "pasted": true, "formId": "inputCardNumber"}'  http://localhost:3000/data
+

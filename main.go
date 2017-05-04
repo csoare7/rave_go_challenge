@@ -16,7 +16,7 @@ type Data struct {
   SessionId          string `json:"sessionId"`
   ResizeFrom         Dimension `json:"resizeFrom"`
   ResizeTo           Dimension `json:"resizeTo"`
-  CopyAndPaste       map[string]bool `json:"width"`// map[fieldId]true
+  CopyAndPaste       map[string]bool `json:"copyAndPaste"` // map[fieldId]true
   FormCompletionTime int `json:"time"`// Seconds
 }
 
@@ -38,7 +38,8 @@ type ResizeData struct {
 
 type CopyAndPasteData struct {
   *BaseData
-  CopyAndPaste       map[string]bool
+  FieldId            string `json:"fieldId"`
+  Pasted             bool `json:"pasted"`
 }
 
 type FormCompletionTimeData struct {
@@ -47,7 +48,7 @@ type FormCompletionTimeData struct {
 }
 
 type Event struct {
-  Type string `json:"eventType"`
+  Type               string `json:"eventType"`
 }
 
 var sessions = make(map[string] *Data)
@@ -60,7 +61,7 @@ func ReadOrInitSessionId(bD *BaseData) (string, error) {
       return "", err
     }
     sessionId := hex.EncodeToString(bytes)
-    sessions[sessionId] = &Data{SessionId: sessionId}
+    sessions[sessionId] = &Data{SessionId: sessionId, CopyAndPaste: make(map[string]bool)}
     return sessionId, nil
   }
   return bD.SessionId, nil
@@ -107,8 +108,7 @@ func PostData(w http.ResponseWriter, r *http.Request) {
       http.Error(w, "Bad request", http.StatusBadRequest)
       return
     }
-    fmt.Println(sessionId)
-    fmt.Println(event.Type)
+
     switch event.Type {
       // case "resize":
       //   var resize ResizeData
@@ -116,19 +116,26 @@ func PostData(w http.ResponseWriter, r *http.Request) {
       //     http.Error(w, "Bad request", http.StatusBadRequest)
       //     return
       //   }
-      // case "copyAndPaste":
-      //   var copyAndPaste CopyAndPasteData
-      //   if err := json.Unmarshal(body, &copyAndPasteData); err != nil {
-      //     http.Error(w, "Bad request", http.StatusBadRequest)
-      //     return
-      //   }
+      //   fmt.Println(resize)
+      case "copyAndPaste":
+        var copyAndPasteData CopyAndPasteData
+        if err := json.Unmarshal(body, &copyAndPasteData); err != nil {
+          http.Error(w, "Bad request", http.StatusBadRequest)
+          return
+        }
+        fieldId := copyAndPasteData.FieldId
+        pasted  := copyAndPasteData.Pasted
+        sessions[sessionId].CopyAndPaste[fieldId] = pasted
+        PrettyPrint(sessions[sessionId])
+
       case "timeTaken":
         var formCompletionTimeData FormCompletionTimeData
         if err := json.Unmarshal(body, &formCompletionTimeData); err != nil {
           http.Error(w, "Bad request", http.StatusBadRequest)
           return
         }
-        sessions[sessionId].FormCompletionTime = formCompletionTimeData.FormCompletionTime
+        time := formCompletionTimeData.FormCompletionTime
+        sessions[sessionId].FormCompletionTime = time
         PrettyPrint(sessions[sessionId])
 
       default:
