@@ -50,17 +50,21 @@ type Event struct {
   Type string `json:"eventType"`
 }
 
-var sessions = make(map[string]*Data) 
+var sessions = make(map[string] *Data)
 
 func ReadOrInitSessionId(bD *BaseData) (string, error) {
   // provide simple random generator for session
+  // 
   // https://astaxie.gitbooks.io/build-web-application-with-golang/en/06.2.html
-  if bD.SessionId == "" {
+
+  _, ok := sessions[bD.SessionId]; if !ok {
     bytes := make([]byte, 16)
     if _, err := rand.Read(bytes); err != nil {
       return "", err
     }
-    return hex.EncodeToString(bytes), nil
+    sessionId := hex.EncodeToString(bytes)
+    sessions[sessionId] = &Data{SessionId: sessionId}
+    return sessionId, nil
   }
   return bD.SessionId, nil
 }
@@ -94,32 +98,41 @@ func PostData(w http.ResponseWriter, r *http.Request) {
       return
     }
 
-    fmt.Println(sessionId)
 
     var event Event
     if err := json.Unmarshal(body, &event); err != nil {
       http.Error(w, "Bad request", http.StatusBadRequest)
       return
     }
+    fmt.Println(sessionId)
+    fmt.Println(event.Type)
+    switch event.Type {
+      // case "resize":
+      //   var resize ResizeData
+      //   if err := json.Unmarshal(body, &resize); err != nil {
+      //     http.Error(w, "Bad request", http.StatusBadRequest)
+      //     return
+      //   }
+      // case "copyAndPaste":
+      //   var copyAndPaste CopyAndPasteData
+      //   if err := json.Unmarshal(body, &copyAndPasteData); err != nil {
+      //     http.Error(w, "Bad request", http.StatusBadRequest)
+      //     return
+      //   }
+      case "timeTaken":
+        var formCompletionTimeData FormCompletionTimeData
+        if err := json.Unmarshal(body, &formCompletionTimeData); err != nil {
+          http.Error(w, "Bad request", http.StatusBadRequest)
+          return
+        }
+        sessions[sessionId].FormCompletionTime = formCompletionTimeData.FormCompletionTime
+        fmt.Println(sessions[sessionId])
 
-
-
-    // switch event
-    //   case "resize":
-    //   case "copyAndPaste":
-
-    //   case "timeTaken":
-    //       sessions[sessionId].FormCompletionTime = time
-    //   default:
-    //     http.Error(w, "Bad request", http.StatusBadRequest)
-    //     return
-
-
-    var time FormCompletionTimeData
-    if err := json.Unmarshal(body, &time); err != nil {
-      http.Error(w, "Bad request", http.StatusBadRequest)
-      return
+      default:
+        http.Error(w, "Bad request", http.StatusBadRequest)
+        return
     }
+
 
 
     // var data Data//map[string] json.RawMessage
@@ -127,7 +140,7 @@ func PostData(w http.ResponseWriter, r *http.Request) {
     //   http.Error(w, "Bad request", http.StatusBadRequest)
     //   return
     // }
-    fmt.Println(time)
+    // fmt.Println(time)
 
     // sessionId, okSessionId := data["sessionId"]; 
     // eventType, okEventType := data["eventType"]; 
