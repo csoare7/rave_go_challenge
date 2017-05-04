@@ -52,11 +52,8 @@ type Event struct {
 
 var sessions = make(map[string] *Data)
 
+// provide simple random generator for hex creation
 func ReadOrInitSessionId(bD *BaseData) (string, error) {
-  // provide simple random generator for session
-  // 
-  // https://astaxie.gitbooks.io/build-web-application-with-golang/en/06.2.html
-
   _, ok := sessions[bD.SessionId]; if !ok {
     bytes := make([]byte, 16)
     if _, err := rand.Read(bytes); err != nil {
@@ -67,6 +64,12 @@ func ReadOrInitSessionId(bD *BaseData) (string, error) {
     return sessionId, nil
   }
   return bD.SessionId, nil
+}
+
+// https://siongui.github.io/2016/01/30/go-pretty-print-variable/
+func PrettyPrint(data interface{}) {
+  d, _ := json.MarshalIndent(data, "", "  ")
+  fmt.Printf("%+v", string(d))
 }
 
 func GetIndex(w http.ResponseWriter, r *http.Request) {
@@ -126,7 +129,7 @@ func PostData(w http.ResponseWriter, r *http.Request) {
           return
         }
         sessions[sessionId].FormCompletionTime = formCompletionTimeData.FormCompletionTime
-        fmt.Println(sessions[sessionId])
+        PrettyPrint(sessions[sessionId])
 
       default:
         http.Error(w, "Bad request", http.StatusBadRequest)
