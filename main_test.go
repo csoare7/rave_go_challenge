@@ -4,12 +4,12 @@ import (
   "net/http"
   "testing"
   "strings"
-  "fmt"
+  "encoding/json"
 )
 
 func TestPostData(t *testing.T) {
 
-  timeJson := `'{"eventType": "timeTaken", "websiteUrl": "https://ravelin.com", "sessionId": "", "time": 100}'`
+  timeJson := `{"eventType": "timeTaken", "websiteUrl": "https://ravelin.com", "sessionId": "", "time": 100}`
   reader := strings.NewReader(timeJson) //Convert string to reader
   
   r, err := http.NewRequest("POST", "http://localhost:3000/data", reader)
@@ -17,11 +17,22 @@ func TestPostData(t *testing.T) {
   response, err := http.DefaultClient.Do(r)
 
   if err != nil {
-      t.Error(err)
+    t.Error(err)
   }
-  body := response.Body
 
-  fmt.Println(body)
+  result := make(map[string]string)
+  if err := json.NewDecoder(response.Body).Decode(&result); err != nil {
+    t.Error(err)
+  }
+
+  if sessionId, ok := result["sessionId"]; !ok || sessionId == "" {
+    t.Error(err) 
+  }
+
+  // if !(result["time"] == 100) {
+  //   t.Error("Time not set")
+  // }
+
 
 
 
