@@ -3,6 +3,10 @@ var Tracker = new function() {
   // properties
   var _self = this;
   var url = null;
+  var screen = {
+    width: Screen.width,
+    height: Screen.height
+  }
 
   // public initialisation method
   _self.init = function() {
@@ -41,7 +45,12 @@ var Tracker = new function() {
   var handleResize = function(event) {
     console.log("resize", event);
     window.removeEventListener("resize", handleResize);
+    var newScreen = {
+      width: Screen.width,
+      height: Screen.height
+    }
     // postData
+
   }
 
 };
