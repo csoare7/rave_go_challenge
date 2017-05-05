@@ -2,51 +2,27 @@ package main
 
 import (
   "net/http"
-  "net/http/httptest"
   "testing"
   "strings"
+  "fmt"
 )
 
-func TestGetIndex(t *testing.T) {
-  req, err := http.NewRequest("GET", "/", nil)
+func TestPostData(t *testing.T) {
+
+  timeJson := `'{"eventType": "timeTaken", "websiteUrl": "https://ravelin.com", "sessionId": "", "time": 100}'`
+  reader := strings.NewReader(timeJson) //Convert string to reader
+  
+  r, err := http.NewRequest("POST", "http://localhost:3000/data", reader)
+  r.Header.Add("Content-Type", "application/json")
+  response, err := http.DefaultClient.Do(r)
+
   if err != nil {
-    t.Fatal(err)
+      t.Error(err)
   }
+  body := response.Body
 
-  rr := httptest.NewRecorder()
-  handler := http.HandlerFunc(GetIndex)
+  fmt.Println(body)
 
-  handler.ServeHTTP(rr, req)
 
-  if status := rr.Code; status != http.StatusOK {
-    t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
-  }
 
-  var contentTypeExpected string = "text/html; charset=UTF-8"
-
-  if contentType, present := rr.HeaderMap["Content-Type"]; present {
-    // convert []string to string 
-    contentType := strings.Join(contentType, "")
-    if contentType != contentTypeExpected {
-      t.Errorf("handler returned wrong content type: got %v want %v", contentType, contentTypeExpected)
-    }
-  } else {
-    t.Errorf("handler returned no Content-Type set")
-  }
-}
-
-func TestPostIndex(t *testing.T) {
-  req, err := http.NewRequest("POST", "/", nil)
-  if err != nil {
-    t.Fatal(err)
-  }
-
-  rr := httptest.NewRecorder()
-  handler := http.HandlerFunc(GetIndex)
-
-  handler.ServeHTTP(rr, req)
-
-  if status := rr.Code; status != http.StatusMethodNotAllowed {
-    t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusMethodNotAllowed)
-  }
 }
