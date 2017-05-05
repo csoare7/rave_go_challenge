@@ -1,35 +1,52 @@
-var tracker = new function() {
-  this.url = null;
-  this.sessionId = null;
+// singleton def
+var Tracker = new function() {
+  // properties
+  var _self = this;
+  var url = null;
 
-  this.init = function() {
-    this.setUrl();
-    this.sessionId();
-  }
+  // public initialisation method
+  _self.init = function() {
+    console.log(this)
+    setUrl(window.location.origin);
+    addResizeListener();
+  };
   
-  this.setUrl = function() {
-    this.url = window.location.origin;
-  }
+  // private gets/sets
+  var setUrl = function(currentUrl) {
+    // check url and throw
+    url = currentUrl;
+  };
 
-  this.getUrl = function() {
-    return this.url;
-  }
+  var getUrl = function() {
+    return url;
+  };
 
-  this.setSessionId = function(sessionId) {
+  var setSessionId = function(sessionId) {
     if (typeof(Storage) !== "undefined") {
-      this.sessionId = localStorage.setItem("ravelin_sessionId", sessionId);
+      localStorage.setItem("ravelin_sessionId", sessionId);
     } else {
         // No web storage support. To implement revert back to cookie
     }
+  };
+
+  var getSessionId = function() {
+    return localStorage.getItem("ravelin_sessionId");
+  };
+
+  var addCopyPasteListener = function() {};
+
+  var addResizeListener = function() {
+    window.addEventListener("resize", handleResize);
+  }
+  var handleResize = function(event) {
+    console.log("resize", event);
+    window.removeEventListener("resize", handleResize);
+    // postData
   }
 
-  this.getSessionId = function() {
-    return sessionId; // or localStorage.getItem("ravelin_sessionId")
-  }
+};
 
-  this.addResizeListener = function() {}
-  this.addCopyPasteListener = function() {}
-  
-}
 
-tracker.init()
+$(document).ready(function() {
+  Tracker.init();
+});
