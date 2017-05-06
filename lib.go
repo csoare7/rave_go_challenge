@@ -23,7 +23,7 @@ func BuildData(body []byte, event Event, sessionId string) error {
         return err
       }
     default:
-      return errors.New("Error")
+      return errors.New("Inconsistent event type")
   }
   PrettyPrint(sessions[sessionId])
   return nil  

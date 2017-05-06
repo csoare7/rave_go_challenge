@@ -3,17 +3,20 @@ var Tracker = new function() {
   // properties
   var _self = this;
   var url = null;
+  var apiUrl = "http://localhost:3000/data";
   var screen = {
-    width: Screen.width,
-    height: Screen.height
-  }
+    width: window.screen.width,
+    height: window.screen.height
+  };
+  var timeTaken = 0;
 
   // public initialisation method
   _self.init = function() {
-    console.log(this)
     setUrl(window.location.origin);
     addResizeListener();
     addCopyPasteListener("input");
+    addKeydownListener("input");
+    addOnSubmitListener("form-details");
   };
   
   // private gets/sets
@@ -40,30 +43,110 @@ var Tracker = new function() {
 
   // private event listeners
   var addCopyPasteListener = function(selector) {
-    inputList = document.querySelectorAll("input");
+    inputList = document.querySelectorAll(selector);
     inputList.forEach(function(input) {
-      input.addEventListener("paste", handlePaste);
+      input.addEventListener("paste", pasteHandler);
+    });
+  };
+
+  var addKeydownListener = function(selector) {
+    inputList = document.querySelectorAll(selector);
+    inputList.forEach(function(input) {
+      input.addEventListener("keydown", keyDownHandler);
     });
   };
 
   var addResizeListener = function() {
-    window.addEventListener("resize", handleResize);
+    window.addEventListener("resize", resizeHandler);
   };
+
+  var addOnSubmitListener = function(selector) {
+    var elements = document.getElementsByClassName(selector);
+    if (elements.length > 0) {
+      var form = elements[0];
+      form.addEventListener("submit", submitHandler);
+    }
+  };
+
+  var removeResizeListener = function() {
+    window.removeEventListener("resize", resizeHandler);
+  }
 
   // event handlers
-  var handlePaste = function(event) {
+  var pasteHandler = function(event) {
     fieldId = event.target.id;
-    // postData
+    var data = {
+      "eventType": "copyAndPaste",
+      "websiteUrl": url,
+      "sessionId": getSessionId(),
+      "fieldId": fieldId,
+      "pasted": true
+    }
+    postData(data);
   };
 
-  var handleResize = function(event) {
+  var keyDownHandler = function(event) {
+    timeTaken = timeTaken || Date.now();
+  }
+
+  var resizeHandler = function(event) {
     // only one resize occurs
-    window.removeEventListener("resize", handleResize);
-    var newScreen = {
-      width: Screen.width,
-      height: Screen.height
+    removeResizeListener();
+
+    var newWidth = window.screen.width;
+    var newHeight =  window.screen.height;
+
+    var data = {
+      "eventType": "resize",
+      "websiteUrl": url,
+      "sessionId": getSessionId(),
+      "resizeFromWidth": screen.width.toString(),
+      "resizeFromHeight": screen.height.toString(),
+      "resizeToWidth": newWidth.toString(),
+      "resizeToHeight": newHeight.toString()
     }
-    // postData
+    postData(data);
+  };
+
+  var submitHandler = function(event) {
+    event.preventDefault();
+    var totalTime = miliToSec(Date.now() - timeTaken);
+    var data = {
+      "eventType": "timeTaken",
+      "websiteUrl": url,
+      "sessionId": getSessionId(),
+      "time": totalTime
+    };
+    postData(data);
+  };
+
+  var onSuccessHandler = function(data, textStatus, xhr) {
+    // set session
+    if (textStatus === "success" && data.hasOwnProperty("sessionId") && data.sessionId !== undefined) {
+      setSessionId(data.sessionId)
+    }
+  };
+
+  var onErrorHandler = function(data, textStatus, xhr) {
+    console.log("Error: ", textStatus);
+  };
+
+  // helpers
+  var postData = function(data) {
+    console.log(data);
+    $.ajax({
+      type: "POST",
+      url: apiUrl,
+      data: JSON.stringify(data),
+      dataType: "json",
+      contentType: "application/json"
+    })
+    .done(onSuccessHandler)
+    .fail(onErrorHandler)
+  };
+
+  var miliToSec = function(time) {
+    return Math.round(time / 1000);
   };
 
 };
