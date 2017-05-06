@@ -148,9 +148,7 @@ var Tracker = new function() {
   var miliToSec = function(time) {
     return Math.round(time / 1000);
   };
-
 };
-
 
 $(document).ready(function() {
   Tracker.init();
