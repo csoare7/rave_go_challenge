@@ -2,7 +2,7 @@
 var Tracker = new function() {
   // properties
   var _self = this;
-  var url = null;
+  var url = window.location.origin;
   var apiUrl = "http://localhost:3000/data";
   var screen = {
     width: window.screen.width,
@@ -12,7 +12,6 @@ var Tracker = new function() {
 
   // public initialisation method
   _self.init = function() {
-    setUrl(window.location.origin);
     addResizeListener();
     addCopyPasteListener("input");
     addKeydownListener("input");
@@ -20,15 +19,6 @@ var Tracker = new function() {
   };
   
   // private gets/sets
-  var setUrl = function(currentUrl) {
-    // check url and throw
-    url = currentUrl;
-  };
-
-  var getUrl = function() {
-    return url;
-  };
-
   var setSessionId = function(sessionId) {
     if (typeof(Storage) !== "undefined") {
       localStorage.setItem("ravelin_sessionId", sessionId);
