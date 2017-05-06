@@ -29,11 +29,4 @@ func TestPostData(t *testing.T) {
     t.Error(err) 
   }
 
-  // if !(result["time"] == 100) {
-  //   t.Error("Time not set")
-  // }
-
-
-
-
 }

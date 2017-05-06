@@ -13,6 +13,7 @@ var Tracker = new function() {
     console.log(this)
     setUrl(window.location.origin);
     addResizeListener();
+    addCopyPasteListener("input");
   };
   
   // private gets/sets
@@ -37,21 +38,33 @@ var Tracker = new function() {
     return localStorage.getItem("ravelin_sessionId");
   };
 
-  var addCopyPasteListener = function() {};
+  // private event listeners
+  var addCopyPasteListener = function(selector) {
+    inputList = document.querySelectorAll("input");
+    inputList.forEach(function(input) {
+      input.addEventListener("paste", handlePaste);
+    });
+  };
 
   var addResizeListener = function() {
     window.addEventListener("resize", handleResize);
-  }
+  };
+
+  // event handlers
+  var handlePaste = function(event) {
+    fieldId = event.target.id;
+    // postData
+  };
+
   var handleResize = function(event) {
-    console.log("resize", event);
+    // only one resize occurs
     window.removeEventListener("resize", handleResize);
     var newScreen = {
       width: Screen.width,
       height: Screen.height
     }
     // postData
-
-  }
+  };
 
 };
 
