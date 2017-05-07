@@ -80,8 +80,6 @@ var Tracker = new function() {
   }
 
   var resizeHandler = function(event) {
-    var event = event;
-    console.log(event);
     var resizeId = null;
     if (resizeId !== null) {
       clearTimeout(resizeId);
@@ -103,7 +101,6 @@ var Tracker = new function() {
       }
       postData(data);
     }, 500);
-
   };
 
 
