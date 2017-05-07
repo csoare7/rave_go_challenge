@@ -9,6 +9,7 @@ var Tracker = new function() {
     height: window.innerHeight
   };
   var timeTaken = 0;
+  var resizeId;
 
   // public initialisation method
   _self.init = function() {
@@ -80,8 +81,7 @@ var Tracker = new function() {
   }
 
   var resizeHandler = function(event) {
-    var resizeId = null;
-    if (resizeId !== null) {
+    if (resizeId !== undefined) {
       clearTimeout(resizeId);
     }
 
