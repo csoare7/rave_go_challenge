@@ -5,8 +5,8 @@ var Tracker = new function() {
   var url = window.location.origin;
   var apiUrl = "http://localhost:3000/data";
   var screen = {
-    width: window.screen.width,
-    height: window.screen.height
+    width: window.innerWidth,
+    height: window.innerHeight
   };
   var timeTaken = 0;
 
@@ -60,7 +60,7 @@ var Tracker = new function() {
 
   var removeResizeListener = function() {
     window.removeEventListener("resize", resizeHandler);
-  }
+  };
 
   // event handlers
   var pasteHandler = function(event) {
@@ -80,23 +80,32 @@ var Tracker = new function() {
   }
 
   var resizeHandler = function(event) {
-    // only one resize occurs
-    removeResizeListener();
-
-    var newWidth = window.screen.width;
-    var newHeight =  window.screen.height;
-
-    var data = {
-      "eventType": "resize",
-      "websiteUrl": url,
-      "sessionId": getSessionId(),
-      "resizeFromWidth": screen.width.toString(),
-      "resizeFromHeight": screen.height.toString(),
-      "resizeToWidth": newWidth.toString(),
-      "resizeToHeight": newHeight.toString()
+    var event = event;
+    console.log(event);
+    var resizeId = null;
+    if (resizeId !== null) {
+      clearTimeout(resizeId);
     }
-    postData(data);
+
+    resizeId = setTimeout(function() {
+      removeResizeListener();
+      var newWidth = window.innerWidth;
+      var newHeight =  window.innerHeight;
+
+      var data = {
+        "eventType": "resize",
+        "websiteUrl": url,
+        "sessionId": getSessionId(),
+        "resizeFromWidth": screen.width.toString(),
+        "resizeFromHeight": screen.height.toString(),
+        "resizeToWidth": newWidth.toString(),
+        "resizeToHeight": newHeight.toString()
+      }
+      postData(data);
+    }, 500);
+
   };
+
 
   var submitHandler = function(event) {
     event.preventDefault();
