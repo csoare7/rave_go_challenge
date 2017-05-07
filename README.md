@@ -60,6 +60,24 @@ type Dimension struct {
 	Height string
 }
 ```
+### Run the code
+```
+git clone git@github.com:csoare7/ravelin_challenge.git
+cd ravelin_challenge
+```
+Serve the static content
+```
+cd static
+python -m SimpleHTTPServer 8000
+```
+Build Go files and run
+``` 
+go build
+./ravelin 
+```
+Notes:
+This is my first Go challenge :)  
+
 
 
 
