@@ -89,7 +89,6 @@ var Tracker = new function() {
       removeResizeListener();
       var newWidth = window.innerWidth;
       var newHeight =  window.innerHeight;
-
       var data = {
         "eventType": "resize",
         "websiteUrl": url,
@@ -100,6 +99,9 @@ var Tracker = new function() {
         "resizeToHeight": newHeight.toString()
       }
       postData(data);
+      // set current w/h to new variables
+      screen.width = newWidth;
+      screen.height = newHeight;
     }, 500);
   };
 
